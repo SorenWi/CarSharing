@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="public/css/style.css" type="text/css">
+    <title>Profile</title>
+</head>
+<body>
+    <nav>
+        <div id="navUser">
+            <% if(isAuth) { %>
+                <a href="/admin" class="userBtn">Admin</a>
+                <a href="/profile" class="userBtn">Profile</a>
+            <% } else { %>
+                <a href="/login" class="authBtn">Login</a>
+                <a href="/register" class="authBtn">Register</a>
+            <% } %>  
+        </div>   
+    </nav>
+
+    <h1>Profile <%= username %> </h1>
+    <form action="/logout" method="POST">
+        <button>Logout</button>
+    </form>
+</body>
+</html>

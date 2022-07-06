@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="public/css/style.css" type="text/css">
+    <link rel="stylesheet" href="public/css/panel.css" type="text/css">
+    <title>Admin</title>
+</head>
+<body>
+    <nav>
+        <div id="navUser">
+            <% if(isAuth) { %>
+                <a href="/admin" class="userBtn">Admin</a>
+                <a href="/profile" class="userBtn">Profile</a>
+            <% } else { %>
+                <a href="/login" class="authBtn">Login</a>
+                <a href="/register" class="authBtn">Register</a>
+            <% } %>  
+        </div>   
+    </nav>
+
+    
+    <div class="panel">
+        <h1>Add car</h1>
+        <form action="/admin" method="POST">
+            <label for="carId">ID</label>
+            <input type="text" name="carId" required>
+            <label for="carName">Name</label>
+            <input type="text" name="carName" required>
+            <label for="fuelType">Fuel Type</label>
+            <select name="fuelType" required>
+                <option value="petrol" selected>Petrol</option>
+                <option value="electric">Electric</option>
+            </select>
+            <label for="earlyTime">Earliest Time</label>
+            <input type="time" name="earlyTime" required>
+            <label for="lateTime">Latest Time</label>
+            <input type="time" name="lateTime" required>
+            <label for="maxTime">Max Time</label>
+            <input type="number" name="maxTime" required>
+            <label for="flatrate">Flatrate</label>
+            <input type="number" step="any" name="flatrate" required>
+            <label for="costPerMinute">Cost per minute</label>
+            <input type="number" step="any" name="costPerMinute" required>
+            <% if (locals.message) { %>
+                <p> <%= message %> </p>
+            <% } %> 
+            <button>Add</button>
+        </form>
+    </div>
+</body>
+</html>
