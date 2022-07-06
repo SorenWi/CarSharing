@@ -45,22 +45,38 @@ nav {
     font-weight: 500;
 }
 
-#searchBtn {
+button {
     background-color: #3d3d3d;
     color:white;
     padding: 10px 20px;
-   
     font-size: 17px;
     font-family: inherit;
     font-weight: 500;
     margin: 0;
-
-    border: 1px solid #3d3d3d;
-    border-left: 1px solid #aaa;
+    border: none;
 }
 
-#searchBtn:hover {
+button:hover {
     cursor: pointer;
+}
+
+p {
+    color: #aaa;
+    font-size: 17px;
+    margin: 0;
+}
+
+input {
+    background-color: #181818;
+    border: 1px solid #3d3d3d;
+    font-size: 17px;
+    padding: 10px;
+    color: #aaa; 
+}
+
+#searchBtn {
+    border: 1px solid #3d3d3d;
+    border-left: 1px solid #aaa;
 }
 
 #searchFuelType {

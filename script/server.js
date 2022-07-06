@@ -12,7 +12,6 @@ const mongoURI = "mongodb://localhost:27017/CarSharing";
 const UserModel = require("../models/User.js");
 const CarModel = require("../models/Car.js");
 const RentInfoModel = require("../models/RentInfo.js");
-const { response } = require('express')
 
 //Connect to MongoDB database
 mongoose.connect(mongoURI).then((res) => {
