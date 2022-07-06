@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="public/css/style.css" type="text/css">
-    <link rel="stylesheet" href="public/css/search.css" type="text/css">
+    <link rel="stylesheet" href="public/css/card.css" type="text/css">
     <script src="../public/script/search.js" async></script>
     <title>Car Search</title>
 </head>
@@ -13,7 +13,7 @@
     <nav>
         <div id="navSearch">
             <div>
-                <input type="text" name="name" id="searchBar" required placeholder="Search"><select name="fuelType" id="searchFuelType">
+                <input type="text" name="name" id="searchBar" required placeholder="Search (when empty shows all and ignores fuel type)"><select name="fuelType" id="searchFuelType">
                     <option value="electric">Electric</option>
                     <option value="petrol">Petrol</option>
                 </select><button id="searchBtn">Search</button>
@@ -30,7 +30,7 @@
         </div>   
     </nav>
 
-    <div id="searchResults"></div>
+    <div id="searchResults" class="cardsContainer"></div>
     
 </body>
 </html>

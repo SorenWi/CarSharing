@@ -1,0 +1,107 @@
+:root {
+    --font-size-normal: 17px;
+    --font-size-big: 20px;
+    --font-size-small: 13px;
+}
+
+body {
+    display: grid;
+    grid-template-rows: 100px 5fr;
+}
+
+.cardsContainer {
+    grid-row: 2;
+    color: #aaa;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.card {
+    justify-self: center;
+    padding: 20px;
+    width: 40%;
+
+    border: 1px solid #3d3d3d;
+    background-color: #212121;
+}
+
+.cardHeader {
+    border-bottom: 1px solid #3d3d3d;
+    padding-bottom: 5px;
+}
+
+.cardHeading {
+    margin: 0px;
+    color: white;
+    font-size: 30px;
+}
+
+.cardSubheading {
+    margin: 0;
+    padding: 0;
+    font-size: var(--font-size-small);
+    color: #aaa;
+}
+
+.cardSectionGrid3 {
+    border-bottom: 1px solid #3d3d3d;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    padding-bottom: 5px;
+}
+
+.cardSectionGrid2 {
+    border-bottom: 1px solid #3d3d3d;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-bottom: 5px;
+}
+
+.cardSectionHeading {
+    color: white;
+    font-weight: 500;
+    margin: 10px 0;
+    font-size: var(--font-size-big);
+}
+
+.cardInfoHeading {
+    color: white;
+    font-weight: 500;
+    margin: 10px 0;
+}
+
+.cardInfo {
+    color: #aaa;
+    font-size: var(--font-size-normal);
+    margin: 0;
+}
+
+.cardInput {
+    background-color: #181818;
+    border: 1px solid #3d3d3d;
+    font-size: 17px;
+    padding: 10px;
+    color: #aaa; 
+}
+
+.cardLabel {
+    color: #aaa;
+    justify-self: start;
+    padding: 10px;
+    font-family: inherit;
+    font-weight: 400;
+}
+
+.cardButton {
+    width: 60%;
+    justify-self: center;
+    color: white;
+    background-color: #3d3d3d;
+    border: none;
+    font-size: 17px;
+    padding: 10px;
+    font-family: inherit;
+    font-weight: 500;
+}

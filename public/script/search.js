@@ -8,10 +8,6 @@ searchBtn.addEventListener("click", search);
 console.log("search js working");
 
 async function search() {
-  if (searchBar.value == "") {
-    console.log("search bar empty");
-    return;
-  }
 
   url = "http://localhost:3000/search";
 
@@ -31,41 +27,166 @@ function showResults(results) {
   //clear previous search results
   resultsDiv.innerHTML = "";
   for (let i = 0; i < results.length; i++) {
+
     resultCard = document.createElement("div");
+    resultCard.classList.add("card");
+
+    //Create Card Header
+    cardHeading = document.createElement("h2");
+    cardHeading.classList.add("cardHeading");
+    cardHeading.append(document.createTextNode(results[i].carName));
+
+    cardSubheading = document.createElement("p")
+    cardSubheading.classList.add("cardSubheading");
+    cardSubheading.append(document.createTextNode("ID: " + results[i].carId));
+
+    cardHeader = document.createElement("div");
+    cardHeader.classList.add("cardHeader");
+
+    cardHeader.append(cardHeading);
+    cardHeader.append(cardSubheading);
+
+    //Create Card Info Section
+    //Section Header
+    infoSectionHeading = document.createElement("h3");
+    infoSectionHeading.classList.add("cardSectionHeading");
+    infoSectionHeading.append(document.createTextNode("Information"));
+
+    //Section Info
+    infoSectionContainer = document.createElement("div");
+    infoSectionContainer.classList.add("cardSectionGrid3");
+
+    //Fuel type
+    fuelInfoContainer = document.createElement("div");
+
+    fuelTypeHeading = document.createElement("h3");
+    fuelTypeHeading.classList.add("cardInfoHeading")
+    fuelTypeHeading.append(document.createTextNode("Fuel Type"))
+
+    fuelTypeInfo = document.createElement("p")
+    fuelTypeInfo.classList.add("cardInfo");
+    fuelTypeInfo.append(document.createTextNode(results[i].fuelType));
     
-    carHeader = document.createElement("h2");
-    carHeaderString = `${results[i].carName} - ${results[i].carId}`
-    carHeader.append(document.createTextNode(carHeaderString));
+    fuelInfoContainer.append(fuelTypeHeading);
+    fuelInfoContainer.append(fuelTypeInfo);
 
-    carId = document.createElement("p")
-    carId.append(document.createTextNode(results[i].carId));
+    //Time
+    timeInfoContainer = document.createElement("div");
 
-    carName = document.createElement("p")
-    carName.append(document.createTextNode(results[i].carName));
+    timeHeading = document.createElement("h3");
+    timeHeading.classList.add("cardInfoHeading");
+    timeHeading.append(document.createTextNode("Time"));
 
-    fuelType = document.createElement("p")
-    fuelType.append(document.createTextNode(results[i].fuelType));
-    
     timeFrame = document.createElement("p");
-    timeFrameString = `${results[i].earlyTime} - ${results[i].lateTime}`; 
+    timeFrameString = `time frame: ${results[i].earlyTime} - ${results[i].lateTime}`;
+    timeFrame.classList.add("cardInfo"); 
     timeFrame.append(document.createTextNode(timeFrameString));
 
     maxTime = document.createElement("p")
-    maxTime.append(document.createTextNode(results[i].maxTime));
+    maxTime.classList.add("cardInfo");
+    maxTime.append(document.createTextNode("max time (minutes): " + results[i].maxTime));
+
+    timeInfoContainer.append(timeHeading);
+    timeInfoContainer.append(timeFrame);
+    timeInfoContainer.append(maxTime);
+
+    //Pricing
+    pricingInfoContainer = document.createElement("div");
+
+    pricingHeading = document.createElement("h3");
+    pricingHeading.classList.add("cardInfoHeading");
+    pricingHeading.append(document.createTextNode("Pricing"));
 
     flatrate = document.createElement("p")
-    flatrate.append(document.createTextNode(results[i].flatrate));
+    flatrate.classList.add("cardInfo");
+    flatrate.append(document.createTextNode("flatrate:" + results[i].flatrate));
 
     costPerMinute = document.createElement("p")
-    costPerMinute.append(document.createTextNode(results[i].costPerMinute));
+    costPerMinute.classList.add("cardInfo");
+    costPerMinute.append(document.createTextNode("cost per minute: " + results[i].costPerMinute));
     
-    resultCard.append(carHeader);
-    resultCard.append(fuelType);
-    resultCard.append(timeFrame);
-    resultCard.append(maxTime);
-    resultCard.append(flatrate);
-    resultCard.append(costPerMinute);
+    pricingInfoContainer.append(pricingHeading);
+    pricingInfoContainer.append(flatrate);
+    pricingInfoContainer.append(costPerMinute);
+
+    //Combine everything
+    infoSectionContainer.append(fuelInfoContainer);
+    infoSectionContainer.append(timeInfoContainer);
+    infoSectionContainer.append(pricingInfoContainer);
+
+    //Input section
+    inputSectionHeading = document.createElement("h3");
+    inputSectionHeading.classList.add("cardSectionHeading");
+    inputSectionHeading.append(document.createTextNode("Check Availability / Book"))
     
+    inputSectionContainer = document.createElement("div");
+    inputSectionContainer.classList.add("cardSectionGrid2");
+
+    //Date input
+    dateInputLabel = document.createElement("label");
+    dateInputLabel.classList.add("cardLabel");
+    dateInputLabel.setAttribute("for", "date");
+    dateInputLabel.append(document.createTextNode("Date"));
+
+    dateInput = document.createElement("input");
+    dateInput.classList.add("cardInput");
+    dateInput.setAttribute("name", "date");
+    dateInput.setAttribute("type", "date");
+
+    inputSectionContainer.append(dateInputLabel);
+    inputSectionContainer.append(dateInput);
+
+    //Time input
+    timeInputLabel = document.createElement("label");
+    timeInputLabel.classList.add("cardLabel");
+    timeInputLabel.setAttribute("for", "time");
+    timeInputLabel.append(document.createTextNode("Time"));
+
+    timeInput = document.createElement("input");
+    timeInput.classList.add("cardInput");
+    timeInput.setAttribute("name", "time");
+    timeInput.setAttribute("type", "time");
+
+    inputSectionContainer.append(timeInputLabel);
+    inputSectionContainer.append(timeInput);
+
+    //Duration input
+    durationInputLabel = document.createElement("label");
+    durationInputLabel.classList.add("cardLabel");
+    durationInputLabel.setAttribute("for", "duration");
+    durationInputLabel.append(document.createTextNode("Duration"));
+
+    durationInput = document.createElement("input");
+    durationInput.classList.add("cardInput");
+    durationInput.setAttribute("name", "duration");
+    durationInput.setAttribute("type", "number");
+
+    inputSectionContainer.append(durationInputLabel);
+    inputSectionContainer.append(durationInput);
+
+    //Buttons 
+    
+
+    //Check availability button
+    checkButton = document.createElement("button");
+    checkButton.classList.add("cardButton");
+    checkButton.append(document.createTextNode("Check Price/Availability"));
+    //Book button
+    bookButton = document.createElement("button");
+    bookButton.classList.add("cardButton");
+    bookButton.append(document.createTextNode("Book"));
+
+
+    inputSectionContainer.append(checkButton);
+    inputSectionContainer.append(bookButton);
+
+    resultCard.append(cardHeader);
+    resultCard.append(infoSectionHeading);
+    resultCard.append(infoSectionContainer);
+
+    resultCard.append(inputSectionHeading);
+    resultCard.append(inputSectionContainer);
+
     resultsDiv.append(resultCard);
     //create html elements to show data from results
     console.log(results[i].carName)
@@ -75,26 +196,3 @@ function showResults(results) {
 async function showMore() {
 
 }
-
-/*
-const myRequest = new Request('/url here/');
-    
-    async function getData () { 
-    
-    await fetch(request, {
-          method: "GET"
-        })
-        .catch(() => {
-          console.log("Fail zone");
-        })
-        .then((res) => {
-          if (res.ok) {
-            res.json().then((json) => {
-             console.log(json)
-            });
-          } else {
-            console.log("error", res);
-          }
-        });
-      };
-      */

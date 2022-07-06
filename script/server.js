@@ -52,6 +52,10 @@ app.get("/", async (req, res) => {
 
 app.post("/search", async (req, res) => {
   const { searchText, fuelType } = req.body;
+  if (searchText == "") {
+    results = await CarModel.find().limit(10)
+    return res.json( {results: results });
+  }
   results = await CarModel.find({carName: searchText, fuelType: fuelType}).limit(10);
   //return first 10 results as json
   res.json( { results: results });
