@@ -32,5 +32,42 @@
 
     <div id="searchResults" class="cardsContainer"></div>
     
+
+    <script id="cardTemplate" type="text/html">
+        <div class="cardHeader">
+            <h3 class="cardHeading">{NAME}</h3>
+            <p class="cardSubheading">ID: {ID}</p>
+          </div>
+          <h3 class="cardSectionHeading">Information</h3>
+          <div class="cardSectionGrid3">
+            <div>
+              <h3 class="cardInfoHeading">Fuel Type</h3>
+              <p>{FUELTYPE}</p>
+            </div>
+            <div>
+              <h3 class="cardInfoHeading">Time</h3>
+              <p>Time Frame: {TIMEFRAME}</p>
+              <p>Max Time: {MAXTIME}</p>
+            </div>
+            <div>
+              <h3 class="cardInfoHeading">Cost</h3>
+              <p>Flatrate: {FLATRATE}</p>
+              <p>Cost per minute: {COSTPERMINUTE}</p>
+            </div>
+          </div>
+    
+          <h3 class="cardSectionHeading">Check Availability / Book</h3>
+          <div class="cardSectionGrid2">
+            <label for="date">Date</label>
+            <input type="date" name="date">
+            <label for="time">Time</label>
+            <input type="time" name="time">
+            <label for="duration">Duration</label>
+            <input type="number" name="duration">
+    
+            <button>Check Availability</button>
+            <button>Book</button>
+          </div>
+    </script>
 </body>
 </html>

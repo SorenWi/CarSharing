@@ -31,14 +31,6 @@ h1 {
     border-bottom: 1px solid #3d3d3d;
 }
 
-.panel form input {
-    background-color: #181818;
-    border: 1px solid #3d3d3d;
-    font-size: 17px;
-    padding: 10px;
-    color: #aaa;
-}
-
 .panel form label {
     color: #aaa;
     justify-self: start;
@@ -57,16 +49,6 @@ h1 {
     grid-column: 1 / span 2;
     padding: 0px 10px;
     color: #3ea6ff;
-}
-
-select {
-    padding: 10px;
-    background-color: #3d3d3d; 
-    font-size: 17px;
-    font-family: inherit;
-    font-weight: 500;
-    color: #aaa;
-    border: 1px solid #3d3d3d;
 }
 
 .panel p {
