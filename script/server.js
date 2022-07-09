@@ -51,17 +51,6 @@ app.get("/", async (req, res) => {
   res.render("carSearch", {isAuth: req.session.isAuth});
 });
 
-app.post("/search", async (req, res) => {
-  const { searchText, fuelType } = req.body;
-  if (searchText == "") {
-    results = await CarModel.find().limit(10)
-    return res.json( {results: results });
-  }
-  results = await CarModel.find({carName: searchText, fuelType: fuelType}).limit(10);
-  //return first 10 results as json
-  res.json( { results: results });
-});
-
 app.get("/admin", (req, res) => { //TODO add middleware to check if user is admin
   res.render("admin", {isAuth: req.session.isAuth});
 });
@@ -155,10 +144,56 @@ app.post("/admin", async (req, res) => {
   res.render("admin", { isAuth: req.session.isAuth, message: "Successfully added car" });
 });
 
+app.post("/search", async (req, res) => {
+  /*
+  const { showAll, useFilter } = req.body;
+
+  if (useFilter) {
+    if (showAll) {
+      
+    }
+  }
+
+  if (showAll) {
+    if (useFilter) {
+      applyFilter(param, param, param);
+    }
+    results = await CarModel.find().limit(10);
+  }
+  */
+  /*
+  
+  if (useFilter) {
+    const { filterDate, filterTime, filterDuration } = req.body;
+    results = await CarModel.find({carName: prevSearch OR empty when showAll, fuelType: fuelType, date: filterDate});
+
+    //iterate through all and apply filter
+    //check if carDuration >= filterDuration otherwise remove from results
+    //check if time is available otherwise remove from results
+  }
+  */
+  const { searchText, fuelType } = req.body;
+
+  results = await CarModel.find({carName: searchText, fuelType: fuelType}).limit(10);
+  //return first 10 results as json
+  res.json( { results: results });
+});
+
+//TODO delete after merge with /search
+app.post("/searchAll", async (req, res) => {
+  results = await CarModel.find().limit(10);
+  res.json({ results: results });
+});
+
+app.post("/searchMore", async (req, res) => {
+  const { searchText, fuelType, index } = req.body;
+
+  results = await CarModel.find({carName: searchText, fuelType: fuelType}).skip(index).limit(10);
+});
+
 app.post("/checkAvailability", async (req, res) => {
   console.log("availability request");
   const {carId, date, time, duration} = req.body;
-  alreadyExisting = await RentInfoModel.find({carId: carId, date: date});
   
   car = await CarModel.findOne({carId: carId}); 
   price = car.flatrate + car.costPerMinute * duration;
@@ -166,32 +201,23 @@ app.post("/checkAvailability", async (req, res) => {
   const availableResponseMessage = `The car is available, the cost for ${duration} minutes is ${price}€`;
   const unavailableResponseMessage = `The car is not available for the specified time, the cost for ${duration} minutes would be ${price}€`;
 
-  if(!alreadyExisting) {
-    console.log(availableResponseMessage);
-    return res.json({ message: availableResponseMessage });
+  if(!(await isAvailable(carId, date, time, duration))) {
+    res.json({ message: unavailableResponseMessage});
+  } else {
+    res.json({ message: availableResponseMessage});
   }
-
-  for (let i = 0; i < alreadyExisting.length; i++) {
-    const {startTime, duration } = alreadyExisting[i];
-    if (TimeManager.isTimeOverlap(time, duration, startTime, duration)) {
-      console.log(unavailableResponseMessage);
-      return res.json({ message: unavailableResponseMessage});
-    }
-  }
-  
-  console.log(availableResponseMessage);
-  res.json({ message: availableResponseMessage});
 });
 
 app.post("/bookCar", async (req, res) => {
   const {carId, date, time, duration} = req.body;
 
   if (!req.session.isAuth) {
-    return res.json({ message: "You have to log in first to book a car"});
+    return res.json({ message: 'You have to login first to book a car'});
   } 
-  //TODO check availability first
 
-  const bookedSuccessfullyMessage = `Booked successfully`;
+  if(!(await isAvailable(carId, date, time, duration))) {
+    return res.json({ message: "Can't book; not available for specified time" });
+  }
 
   booking = new RentInfoModel({
     carId: carId,
@@ -201,28 +227,37 @@ app.post("/bookCar", async (req, res) => {
   });
 
   booking.save();
-  console.log("successfully booked");
-  res.json({ message: bookedSuccessfullyMessage})
+
+  res.json({ message: "Successfully booked car"})
 });
 
-/*
-function isAvailable(carId, date, time, duration) {
+//Returns if a car is available for the specified time
+async function isAvailable(carId, date, time, rentDuration) {
   alreadyExisting = await RentInfoModel.find({carId: carId, date: date});
+  car = await CarModel.findOne({carId: carId}); 
 
-  if(!alreadyExisting) {
+  //Check if duration is legit
+  if(rentDuration > car.maxTime) {
+    return res.json({ message: "Duration is higher than the maximum time limit"});
+  }
+
+  //TODO Check if time frame is legit for that car
+
+  //If there is no other booking that day (and didnt already fail previous checks), has to be available
+  if (!alreadyExisting) {
     return true;
   }
 
+  //Check all other bookings, if one of them overlaps it is not available
   for (let i = 0; i < alreadyExisting.length; i++) {
-    const { startTime, rentDuration } = alreadyExisting[i];
-    if (TimeManager.isTimeOverlap(time, duration, startTime, rentDuration)) {
+    const {startTime, duration } = alreadyExisting[i];
+    if (TimeManager.isTimeOverlap(time, rentDuration, startTime, duration)) {
       return false;
     }
   }
 
   return true;
 }
-*/
 
 app.listen(port, () => {
   console.log('Server running on http://localhost:' + port)

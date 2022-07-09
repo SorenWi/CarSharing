@@ -11,14 +11,6 @@
 </head>
 <body>
     <nav>
-        <div id="navSearch">
-            <div>
-                <input type="text" name="name" id="searchBar" required placeholder="Search (when empty shows all and ignores fuel type)"><select name="fuelType" id="searchFuelType">
-                    <option value="Electric">Electric</option>
-                    <option value="Petrol">Petrol</option>
-                </select><button id="searchBtn">Search</button>
-            </div>
-        </div>
         <div id="navUser">
             <% if(isAuth) { %>
                 <a href="/admin" class="userBtn">Admin</a>
@@ -29,6 +21,26 @@
             <% } %>  
         </div>   
     </nav>
+
+    <div id="search">
+      <div>
+        <input type="text" name="name" id="searchBar" required placeholder="Search (when empty shows all and ignores fuel type)"><select name="fuelType" id="searchFuelType">
+            <option value="Electric">Electric</option>
+            <option value="Petrol">Petrol</option>
+        </select><button id="searchBtn">Search</button>
+      </div>
+      <div id="filterOptions">
+        <label for="date">Date</label>
+        <input type="date" name="date" id="filterDate">
+        <label for="time">Time</label>
+        <input type="time" name="time" id="filterTime">
+        <label for="duration">Duration</label>
+        <input type="number" name="duration" id="filterDuration">
+        <button id="filterSearchBtn">Search with filters</button>
+      </div>
+      <button id="searchAllBtn">Show all</button>
+      <div class="response" id="searchResponse"></div> 
+    </div>
 
     <div id="searchResults" class="cardsContainer"></div>
     

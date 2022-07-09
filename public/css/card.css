@@ -1,10 +1,4 @@
-body {
-    display: grid;
-    grid-template-rows: 100px 5fr;
-}
-
 .cardsContainer {
-    grid-row: 2;
     color: #aaa;
     width: 100%;
     display: grid;

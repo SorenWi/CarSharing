@@ -25,6 +25,16 @@ class TimeManager {
         return false;   
     }
 
+    //checks if second timeframe is within first
+    static timeFrameWithinTimeFrame(startTime1, endTime1, startTime2, duration2) {
+        const start1 = this.convertToMinutes(startTime1);
+        const start2 = this.convertToMinutes(startTime2);
+        const end1 = this.convertToMinutes(endTime1);
+        const end2 = start2 + duration2;
+
+        return this.timePointWithinFrame(start1, end1, start2) && this.timePointWithinFrame(start1, end1, end2);
+    }
+
     //all parameters in minutes
     //returns wether a point in time lies within a time frame
     static timePointWithinFrame(frameStart, frameEnd, timePoint) {

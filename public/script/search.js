@@ -2,16 +2,61 @@ resultsDiv = document.getElementById("searchResults");
 searchBar = document.getElementById("searchBar");
 fuelType = document.getElementById("searchFuelType");
 searchBtn = document.getElementById("searchBtn");
+searchAllBtn = document.getElementById("searchAllBtn");
+
+filterDateInput = document.getElementById("filterDate");
+filterTimeInput = document.getElementById("filterTime");
+filterDurationInput = document.getElementById("filterDuration");
+
+searchResponseDiv = document.getElementById("searchResponse");
 
 cardTemplate = document.getElementById("cardTemplate").innerHTML;
 
 searchBtn.addEventListener("click", search);
+searchAllBtn.addEventListener("click", searchAll);
+
+function getFilterValues() {
+  return { filterDate: filterDateInput.value, filterTime: filterTimeInput.value, filterDuration: filterDurationInput.value};
+}
+
+async function filterSearch(showAll = false) {
+  const { filterDate, filterTime, filterDuration } = getFilterValues();
+
+  if ( filterDate == "" || filterTime == "" || filterDuration == "") {
+    console.log("Missing filter input")
+    searchResponse.innerHTML = "Missing filter input";
+  }
+
+  let body;
+  if (showAll) {
+    body = { showAll: true, filterDate: filterDate, filterTime: filterTime, filterDuration: filterDuration };
+  } else {
+    if (searchBar.value == "" || fuelType.value == "") {
+      showSearchResponse("Missing filter input");
+      return;
+    }
+    body = { searchText: searchBar.value, fuelType: fuelType.value, filterDate: filterDate, filterTime: filterTime, filterDuration: filterDuration};
+  }
+
+  // /search or /filterSearch?
+  makeRequest("/search", body);
+}
+
+
+
+async function searchAll() {
+  const response = await makeRequest("/searchAll", {});
+  showResults(response.results);
+}
 
 async function search() {
+  if (searchBar.value == "" || fuelType.value == "") {
+    showSearchResponse("Missing search input");
+    return;
+  }
   const body = { searchText: searchBar.value, fuelType: fuelType.value};
-  url = "http://localhost:3000/search";
   const response = await makeRequest("/search", body);
-  showResults(response.results);
+  showResults(response.results); 
 }
 
 function showResults(results) {
@@ -45,7 +90,7 @@ function showResults(results) {
 }
 
 async function checkAvailability(id) {
-  const { date, time, duration } = getInputsOfId(id);
+  const { date, time, duration } = getInputsOfCard(id);
   if ( date == "" || time == "" || duration == "") {
     showCardResponse(id, "Missing input");
     return;
@@ -63,8 +108,13 @@ function showCardResponse(id, message) {
   responseDiv.append(document.createTextNode(message));
 }
 
+function showSearchResponse(message) {
+  searchResponseDiv.innerHTML = "";
+  searchResponseDiv.append(document.createTextNode(message));
+}
+
 async function tryBooking(id) {
-  const { date, time, duration } = getInputsOfId(id);
+  const { date, time, duration } = getInputsOfCard(id);
   if ( date == "" || time == "" || duration == "") {
     showCardResponse(id, "Missing input");
     return;
@@ -75,7 +125,7 @@ async function tryBooking(id) {
   showCardResponse(id, response.message);
 }
 
-function getInputsOfId(id) {
+function getInputsOfCard(id) {
   dateInput = document.querySelector(`#${id} input[name="date"]`).value;
   timeInput = document.querySelector(`#${id} input[name="time"]`).value;
   durationInput = document.querySelector(`#${id} input[name="duration"]`).value;
