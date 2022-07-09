@@ -4,7 +4,7 @@ const Schema  = mongoose.Schema;
 const rentInfoSchema = new Schema({
     carId: String,
     startTime: String,
-    endTime: String,
+    duration: Number,
     date: String
 });
 

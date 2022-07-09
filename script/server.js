@@ -6,6 +6,8 @@ const mongoose = require("mongoose")
 const bcrypt = require('bcrypt')
 const cors = require("cors")
 
+const TimeManager = require("./TimeManager.js");
+
 const port = 3000;
 const mongoURI = "mongodb://localhost:27017/CarSharing";
 
@@ -77,7 +79,7 @@ app.get("/profile", isAuth, async (req, res) => {
   res.render("profile", { username: user.username, isAuth: req.session.isAuth})
 })
 
-app.post("/register", async (req, res) => {
+app.post("/register", async (req, res) => { //TODO middleware for redirect to profile if already logged in
   const { username, password } = req.body
   let user = await UserModel.findOne({username})
 
@@ -101,7 +103,7 @@ app.post("/register", async (req, res) => {
 })
 
 
-app.post("/login", async (req, res) => {
+app.post("/login", async (req, res) => { //TODO middleware for redirect to profile if already logged in
   const { username, password } = req.body
 
   const user = await UserModel.findOne({username})
@@ -152,6 +154,75 @@ app.post("/admin", async (req, res) => {
 
   res.render("admin", { isAuth: req.session.isAuth, message: "Successfully added car" });
 });
+
+app.post("/checkAvailability", async (req, res) => {
+  console.log("availability request");
+  const {carId, date, time, duration} = req.body;
+  alreadyExisting = await RentInfoModel.find({carId: carId, date: date});
+  
+  car = await CarModel.findOne({carId: carId}); 
+  price = car.flatrate + car.costPerMinute * duration;
+
+  const availableResponseMessage = `The car is available, the cost for ${duration} minutes is ${price}€`;
+  const unavailableResponseMessage = `The car is not available for the specified time, the cost for ${duration} minutes would be ${price}€`;
+
+  if(!alreadyExisting) {
+    console.log(availableResponseMessage);
+    return res.json({ message: availableResponseMessage });
+  }
+
+  for (let i = 0; i < alreadyExisting.length; i++) {
+    const {startTime, duration } = alreadyExisting[i];
+    if (TimeManager.isTimeOverlap(time, duration, startTime, duration)) {
+      console.log(unavailableResponseMessage);
+      return res.json({ message: unavailableResponseMessage});
+    }
+  }
+  
+  console.log(availableResponseMessage);
+  res.json({ message: availableResponseMessage});
+});
+
+app.post("/bookCar", async (req, res) => {
+  const {carId, date, time, duration} = req.body;
+
+  if (!req.session.isAuth) {
+    return res.json({ message: "You have to log in first to book a car"});
+  } 
+  //TODO check availability first
+
+  const bookedSuccessfullyMessage = `Booked successfully`;
+
+  booking = new RentInfoModel({
+    carId: carId,
+    startTime: time,
+    duration: duration,
+    date: date
+  });
+
+  booking.save();
+  console.log("successfully booked");
+  res.json({ message: bookedSuccessfullyMessage})
+});
+
+/*
+function isAvailable(carId, date, time, duration) {
+  alreadyExisting = await RentInfoModel.find({carId: carId, date: date});
+
+  if(!alreadyExisting) {
+    return true;
+  }
+
+  for (let i = 0; i < alreadyExisting.length; i++) {
+    const { startTime, rentDuration } = alreadyExisting[i];
+    if (TimeManager.isTimeOverlap(time, duration, startTime, rentDuration)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+*/
 
 app.listen(port, () => {
   console.log('Server running on http://localhost:' + port)

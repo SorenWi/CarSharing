@@ -14,8 +14,8 @@
         <div id="navSearch">
             <div>
                 <input type="text" name="name" id="searchBar" required placeholder="Search (when empty shows all and ignores fuel type)"><select name="fuelType" id="searchFuelType">
-                    <option value="electric">Electric</option>
-                    <option value="petrol">Petrol</option>
+                    <option value="Electric">Electric</option>
+                    <option value="Petrol">Petrol</option>
                 </select><button id="searchBtn">Search</button>
             </div>
         </div>
@@ -37,8 +37,7 @@
         <div class="cardHeader">
             <h3 class="cardHeading">{NAME}</h3>
             <p class="cardSubheading">ID: {ID}</p>
-          </div>
-          <h3 class="cardSectionHeading">Information</h3>
+          </div>        
           <div class="cardSectionGrid3">
             <div>
               <h3 class="cardInfoHeading">Fuel Type</h3>
@@ -47,12 +46,12 @@
             <div>
               <h3 class="cardInfoHeading">Time</h3>
               <p>Time Frame: {TIMEFRAME}</p>
-              <p>Max Time: {MAXTIME}</p>
+              <p>Time limit: {MAXTIME} minutes</p>
             </div>
             <div>
               <h3 class="cardInfoHeading">Cost</h3>
-              <p>Flatrate: {FLATRATE}</p>
-              <p>Cost per minute: {COSTPERMINUTE}</p>
+              <p>Flatrate: {FLATRATE}€</p>
+              <p>Cost per minute: {COSTPERMINUTE}€</p>
             </div>
           </div>
     
@@ -64,9 +63,10 @@
             <input type="time" name="time">
             <label for="duration">Duration</label>
             <input type="number" name="duration">
-    
-            <button>Check Availability</button>
-            <button>Book</button>
+
+            <button id="checkButton">Check Availability</button>
+            <button id="bookButton">Book</button>
+            <div class="response"></div>
           </div>
     </script>
 </body>

@@ -36,13 +36,24 @@ nav {
 
 #searchBar {
     width: 60%;
+    margin: 0;
+    font-weight: 500;
+}
+
+input {
     background-color: #181818;
     border: 1px solid #3d3d3d;
-    color: #aaaaaa;
-    padding: 10px;
-    margin: 0;
     font-size: 17px;
-    font-weight: 500;
+    padding: 10px;
+    color: #aaa; 
+}
+
+label {
+    color: #aaa;
+    justify-self: start;
+    padding: 10px;
+    font-family: inherit;
+    font-weight: 400;
 }
 
 button {
@@ -66,12 +77,8 @@ p {
     margin: 0;
 }
 
-input {
-    background-color: #181818;
-    border: 1px solid #3d3d3d;
-    font-size: 17px;
-    padding: 10px;
-    color: #aaa; 
+a {
+    color: white;
 }
 
 #searchBtn {

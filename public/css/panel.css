@@ -31,14 +31,6 @@ h1 {
     border-bottom: 1px solid #3d3d3d;
 }
 
-.panel form label {
-    color: #aaa;
-    justify-self: start;
-    padding: 10px;
-    font-family: inherit;
-    font-weight: 400;
-}
-
 .panel form button {
     grid-column: 1 / span 2;
     justify-self: center;
@@ -53,9 +45,5 @@ h1 {
 
 .panel p {
     font-size: 14px;
-    color: #aaa; 
 }
 
-.panel p a {
-    color: white;
-}
