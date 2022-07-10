@@ -6,12 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="public/css/style.css" type="text/css">
     <link rel="stylesheet" href="public/css/profile.css" type="text/css">
+    <link rel="stylesheet" href="public/css/card.css" type="text/css">
     <script src="../public/script/profile.js" async></script>
     <title>Profile</title>
 </head>
 <body>
     <nav>
         <div id="navUser">
+            <a class="userBtn" href="/">Search</a>
             <% if(isAuth) { %>
                 <a href="/admin" class="userBtn">Admin</a>
                 <a href="/profile" class="userBtn">Profile</a>
@@ -22,23 +24,33 @@
         </div>   
     </nav>
 
-    <div id="profileInfo">
-        <h1>Profile <%= username %> </h1>
-        <p>Total cost: <%= totalCost %>€</p>
-        <p>Average cost: <%= averageCost %>€</p>
-        <form action="/logout" method="POST">
-            <button>Logout</button>
-        </form>
+    <div id="profile">
+        <div class="profileSection" id="profileOptions">
+            <h1>Profile</h1>
+            <p>Logged in as: <%= username %></p>
+            <form action="/logout" method="POST">
+                <button>Logout</button>
+            </form>
+        </div>
+        <div class="profileSection" id="profileInfo">
+            <h2>Cost overview</h2>
+            <p>Bookings: <%= totalBookings %></p>
+            <p>Total cost: <%= totalCost %>€</p>
+            <p>Average cost: <%= averageCost %>€</p>
+        </div>
+        <div class="profileSection">
+            <h2>Bookings</h2>
+            <button id="pastBookingsBtn">Past Bookings</button>
+            <button id="upcomingBookingsBtn">Upcoming Bookings</button>
+        </div>
     </div>
     
-    <div id="bookings">
-        <button id="pastBookingsBtn">Past Bookings</button>
-        <button id="upcomingBookingsBtn">Upcoming Bookings</button>
-        <div id="bookingsContainer"></div>
-    </div>
+    <div id="bookingsContainer"></div>
 
     <script id="bookingTemplate" type="text/html">
-        <p>Car id: {ID}</p>
+        <div class="cardHeader">
+            <h3 class="cardHeading">ID: {ID}</h3>
+        </div>
         <p>Date: {DATE}</p>
         <p>Time: {TIME}</p>
         <p>Duration: {DURATION} minutes</p>

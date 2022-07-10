@@ -15,20 +15,21 @@ cardTemplate = document.getElementById("cardTemplate").innerHTML;
 searchBtn.addEventListener("click", search);
 searchAllBtn.addEventListener("click", searchAll);
 
+let currentSearch = {};
+
 function getFilterValues() {
   return { filterDate: filterDateInput.value, filterTime: filterTimeInput.value, filterDuration: filterDurationInput.value};
 }
 
-async function filterSearch(showAll = false) {
+async function filterSearch() {
   const { filterDate, filterTime, filterDuration } = getFilterValues();
 
   if ( filterDate == "" || filterTime == "" || filterDuration == "") {
-    console.log("Missing filter input")
     searchResponse.innerHTML = "Missing filter input";
   }
 
   let body;
-  if (showAll) {
+  if (currentSearch.showAll) {
     body = { showAll: true, filterDate: filterDate, filterTime: filterTime, filterDuration: filterDuration };
   } else {
     if (searchBar.value == "" || fuelType.value == "") {
@@ -55,6 +56,7 @@ async function search() {
     return;
   }
   const body = { searchText: searchBar.value, fuelType: fuelType.value};
+  currentSearch = {searchAll: false, searchText: searchBar.value, fuelType: fuelType.value};
   const response = await makeRequest("/search", body);
   showResults(response.results); 
 }

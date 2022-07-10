@@ -37,7 +37,7 @@ class TimeManager {
         return this.timePointWithinFrame(start1, end1, start2) && this.timePointWithinFrame(start1, end1, end2);
     }
 
-    //all parameters in minutes
+    //all parameters have to be in a number format
     //returns wether a point in time lies within a time frame
     static timePointWithinFrame(frameStart, frameEnd, timePoint) {
         return timePoint >= frameStart && timePoint <= frameEnd;

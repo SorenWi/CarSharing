@@ -22,7 +22,7 @@ function showBookings(bookings) {
 
     bookings.forEach((booking) => {
         card = document.createElement("div");
-        
+        card.classList.add("card");
         card.innerHTML = bookingTemplate;
         card.innerHTML = card.innerHTML
             .replace(/{ID}/g, booking.carId)

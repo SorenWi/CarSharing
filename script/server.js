@@ -65,7 +65,7 @@ app.get("/register", (req, res) => { //TODO middleware for redirect to profile i
 app.get("/profile", isAuth, async (req, res) => {
   let user = await UserModel.findOne({_id: req.session.userId})
   const costInfo = await getUserCostInfo(req.session.userId);
-  res.render("profile", { username: user.username, isAuth: req.session.isAuth, totalCost: costInfo.totalCost, averageCost: costInfo.averageCost.toFixed(2)});
+  res.render("profile", { username: user.username, isAuth: req.session.isAuth, totalCost: costInfo.totalCost, averageCost: costInfo.averageCost.toFixed(2), totalBookings: costInfo.totalBookings});
 })
 
 app.post("/register", async (req, res) => { 
@@ -282,11 +282,16 @@ async function getUserCostInfo(userId) {
   bookings = await BookingModel.find({userId: userId});
 
   let totalCost = 0;
+  const totalBookings = bookings.length;
+ 
+
   bookings.forEach((booking) => {
     totalCost += booking.price;
   });
   
-  return { totalCost: totalCost, averageCost: totalCost / bookings.length };
+  const averageCost = totalBookings == 0 ? 0 : totalCost / totalBookings;
+
+  return { totalCost: totalCost, averageCost: averageCost, totalBookings: totalBookings };
 }
 
 async function getCarPrice(carId, duration) {
