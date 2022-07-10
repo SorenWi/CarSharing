@@ -16,6 +16,7 @@ searchBtn.addEventListener("click", search);
 searchAllBtn.addEventListener("click", searchAll);
 
 let currentSearch = {};
+let currentSearchResultAmount = 0;
 
 function getFilterValues() {
   return { filterDate: filterDateInput.value, filterTime: filterTimeInput.value, filterDuration: filterDurationInput.value};
@@ -44,10 +45,11 @@ async function filterSearch() {
 }
 
 
-
 async function searchAll() {
-  const response = await makeRequest("/searchAll", {});
-  showResults(response.results);
+  clearResults();
+  const body = { showAll: true, useFilter: false, index: currentSearchResultAmount };
+  const results = await getSearchResults(body);
+  showResults(results); 
 }
 
 async function search() {
@@ -55,17 +57,40 @@ async function search() {
     showSearchResponse("Missing search input");
     return;
   }
-  const body = { searchText: searchBar.value, fuelType: fuelType.value};
-  currentSearch = {searchAll: false, searchText: searchBar.value, fuelType: fuelType.value};
+  
+  clearResults();
+  const body = { showAll: false, useFilter: false, index: currentSearchResultAmount, searchText: searchBar.value, fuelType: fuelType.value};
+  const results = await getSearchResults(body);
+  showResults(results); 
+}
+
+async function showMore() {
+  let showMoreBtn = document.getElementById("showMoreBtn");
+  showMoreBtn.parentNode.removeChild(showMoreBtn);
+  console.log(currentSearchResultAmount);
+
+  const body = currentSearch;
+  body.index = currentSearchResultAmount;
+
+  const results = await getSearchResults(body);
+  showResults(results);
+}
+
+async function getSearchResults(body) {
+  currentSearch = body;
   const response = await makeRequest("/search", body);
-  showResults(response.results); 
+  currentSearchResultAmount += response.results.length;
+  return response.results; 
+}
+
+function clearResults() {
+  currentSearchResultAmount = 0;
+  resultsDiv.innerHTML = "";
 }
 
 function showResults(results) {
-  //clear previous search results
   //https://stackoverflow.com/questions/16270761/how-to-insert-a-large-block-of-html-in-javascript
-  resultsDiv.innerHTML = "";
- 
+  
   results.forEach(function(result) {
     card = document.createElement("div");
     card.classList.add("card");
@@ -89,6 +114,16 @@ function showResults(results) {
     bookButton = document.querySelector(`#${id} #bookButton`);
     bookButton.addEventListener("click", () => { tryBooking(id) });
   });
+
+  if (results.length != 0) {
+    showMoreButton = document.createElement("button");
+    showMoreButton.setAttribute("id", "showMoreBtn");
+    showMoreButton.append(document.createTextNode("Show more"));
+  
+    showMoreButton.addEventListener("click", showMore);
+  
+    resultsDiv.append(showMoreButton);
+  }
 }
 
 async function checkAvailability(id) {
@@ -100,6 +135,18 @@ async function checkAvailability(id) {
 
   const body = { carId: id, date: date, time: time, duration: duration };
   const response = await makeRequest("/checkAvailability", body); 
+  showCardResponse(id, response.message);
+}
+
+async function tryBooking(id) {
+  const { date, time, duration } = getInputsOfCard(id);
+  if ( date == "" || time == "" || duration == "") {
+    showCardResponse(id, "Missing input");
+    return;
+  }
+
+  const body = { carId: id, date: date, time: time, duration: duration };
+  const response = await makeRequest("/bookCar", body);
   showCardResponse(id, response.message);
 }
 
@@ -115,28 +162,12 @@ function showSearchResponse(message) {
   searchResponseDiv.append(document.createTextNode(message));
 }
 
-async function tryBooking(id) {
-  const { date, time, duration } = getInputsOfCard(id);
-  if ( date == "" || time == "" || duration == "") {
-    showCardResponse(id, "Missing input");
-    return;
-  }
-
-  const body = { carId: id, date: date, time: time, duration: duration };
-  const response = await makeRequest("/bookCar", body);
-  showCardResponse(id, response.message);
-}
-
 function getInputsOfCard(id) {
   dateInput = document.querySelector(`#${id} input[name="date"]`).value;
   timeInput = document.querySelector(`#${id} input[name="time"]`).value;
   durationInput = document.querySelector(`#${id} input[name="duration"]`).value;
 
   return inputs = { date: dateInput, time: timeInput, duration: durationInput };
-}
-
-async function showMore() {
-
 }
 
 async function makeRequest(path, body) {

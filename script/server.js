@@ -145,50 +145,17 @@ app.post("/admin", async (req, res) => {
 });
 
 app.post("/search", async (req, res) => {
-  /*
-  const { showAll, useFilter } = req.body;
 
-  if (useFilter) {
-    if (showAll) {
-      
-    }
-  }
+  const { showAll, useFilter, index } = req.body;
 
   if (showAll) {
-    if (useFilter) {
-      applyFilter(param, param, param);
-    }
-    results = await CarModel.find().limit(10);
+    results = await CarModel.find().skip(index).limit(10);
+    return res.json({ results: results });
+  } else {
+    const { searchText, fuelType } = req.body;
+    results = await CarModel.find({carName: searchText, fuelType: fuelType}).skip(index).limit(10);    
+    res.json({ results: results });
   }
-  */
-  /*
-  
-  if (useFilter) {
-    const { filterDate, filterTime, filterDuration } = req.body;
-    results = await CarModel.find({carName: prevSearch OR empty when showAll, fuelType: fuelType, date: filterDate});
-
-    //iterate through all and apply filter
-    //check if carDuration >= filterDuration otherwise remove from results
-    //check if time is available otherwise remove from results
-  }
-  */
-  const { searchText, fuelType } = req.body;
-
-  results = await CarModel.find({carName: searchText, fuelType: fuelType}).limit(10);
-  //return first 10 results as json
-  res.json( { results: results });
-});
-
-//TODO delete after merge with /search
-app.post("/searchAll", async (req, res) => {
-  results = await CarModel.find().limit(10);
-  res.json({ results: results });
-});
-
-app.post("/searchMore", async (req, res) => {
-  const { searchText, fuelType, index } = req.body;
-
-  results = await CarModel.find({carName: searchText, fuelType: fuelType}).skip(index).limit(10);
 });
 
 app.post("/checkAvailability", async (req, res) => {
