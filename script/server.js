@@ -13,7 +13,7 @@ const mongoURI = "mongodb://localhost:27017/CarSharing";
 
 const UserModel = require("../models/User.js");
 const CarModel = require("../models/Car.js");
-const RentInfoModel = require("../models/RentInfo.js");
+const BookingModel = require("../models/Booking.js");
 
 //Connect to MongoDB database
 mongoose.connect(mongoURI).then((res) => {
@@ -47,28 +47,28 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: true, credentials: true }));
 
 app.get("/", async (req, res) => {
-  //CarModel.find().skip()
   res.render("carSearch", {isAuth: req.session.isAuth});
 });
 
-app.get("/admin", (req, res) => { //TODO add middleware to check if user is admin
+app.get("/admin", (req, res) => { //TODO add middleware to check if user is admin  
   res.render("admin", {isAuth: req.session.isAuth});
 });
 
-app.get("/login", (req, res) => {
+app.get("/login", (req, res) => { //TODO middleware for redirect to profile if already logged in
   res.render("login");
 });
 
-app.get("/register", (req, res) => {
+app.get("/register", (req, res) => { //TODO middleware for redirect to profile if already logged in
   res.render("register");
 });
 
 app.get("/profile", isAuth, async (req, res) => {
   let user = await UserModel.findOne({_id: req.session.userId})
-  res.render("profile", { username: user.username, isAuth: req.session.isAuth})
+  const costInfo = await getUserCostInfo(req.session.userId);
+  res.render("profile", { username: user.username, isAuth: req.session.isAuth, totalCost: costInfo.totalCost, averageCost: costInfo.averageCost.toFixed(2)});
 })
 
-app.post("/register", async (req, res) => { //TODO middleware for redirect to profile if already logged in
+app.post("/register", async (req, res) => { 
   const { username, password } = req.body
   let user = await UserModel.findOne({username})
 
@@ -219,11 +219,13 @@ app.post("/bookCar", async (req, res) => {
     return res.json({ message: "Can't book; not available for specified time" });
   }
 
-  booking = new RentInfoModel({
+  booking = new BookingModel({
     carId: carId,
-    startTime: time,
+    userId: req.session.userId,
+    time: time,
     duration: duration,
-    date: date
+    date: date,
+    price: await getCarPrice(carId, duration)
   });
 
   booking.save();
@@ -231,9 +233,26 @@ app.post("/bookCar", async (req, res) => {
   res.json({ message: "Successfully booked car"})
 });
 
+app.post("/getBookings", async (req, res) => {
+  bookings = await BookingModel.find({userId: req.session.userId});
+  
+  let pastBookings = [];
+  let upcomingBookings = [];
+
+  bookings.forEach((booking) => {
+    if (TimeManager.isPast(booking.date, booking.time)) {
+      pastBookings.push(booking);
+    } else {
+      upcomingBookings.push(booking);
+    }
+  });
+
+  res.json({ pastBookings: pastBookings, upcomingBookings: upcomingBookings });
+});
+
 //Returns if a car is available for the specified time
-async function isAvailable(carId, date, time, rentDuration) {
-  alreadyExisting = await RentInfoModel.find({carId: carId, date: date});
+async function isAvailable(carId, date, rentTime, rentDuration) {
+  alreadyExisting = await BookingModel.find({carId: carId, date: date});
   car = await CarModel.findOne({carId: carId}); 
 
   //Check if duration is legit
@@ -250,13 +269,29 @@ async function isAvailable(carId, date, time, rentDuration) {
 
   //Check all other bookings, if one of them overlaps it is not available
   for (let i = 0; i < alreadyExisting.length; i++) {
-    const {startTime, duration } = alreadyExisting[i];
-    if (TimeManager.isTimeOverlap(time, rentDuration, startTime, duration)) {
+    const { time, duration } = alreadyExisting[i];
+    if (TimeManager.isTimeOverlap(rentTime, rentDuration, time, duration)) {
       return false;
     }
   }
 
   return true;
+}
+
+async function getUserCostInfo(userId) {
+  bookings = await BookingModel.find({userId: userId});
+
+  let totalCost = 0;
+  bookings.forEach((booking) => {
+    totalCost += booking.price;
+  });
+  
+  return { totalCost: totalCost, averageCost: totalCost / bookings.length };
+}
+
+async function getCarPrice(carId, duration) {
+  car = await CarModel.findOne({carId: carId});
+  return car.flatrate + car.costPerMinute * duration;
 }
 
 app.listen(port, () => {

@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="public/css/style.css" type="text/css">
+    <link rel="stylesheet" href="public/css/profile.css" type="text/css">
+    <script src="../public/script/profile.js" async></script>
     <title>Profile</title>
 </head>
 <body>
@@ -20,9 +22,27 @@
         </div>   
     </nav>
 
-    <h1>Profile <%= username %> </h1>
-    <form action="/logout" method="POST">
-        <button>Logout</button>
-    </form>
+    <div id="profileInfo">
+        <h1>Profile <%= username %> </h1>
+        <p>Total cost: <%= totalCost %>€</p>
+        <p>Average cost: <%= averageCost %>€</p>
+        <form action="/logout" method="POST">
+            <button>Logout</button>
+        </form>
+    </div>
+    
+    <div id="bookings">
+        <button id="pastBookingsBtn">Past Bookings</button>
+        <button id="upcomingBookingsBtn">Upcoming Bookings</button>
+        <div id="bookingsContainer"></div>
+    </div>
+
+    <script id="bookingTemplate" type="text/html">
+        <p>Car id: {ID}</p>
+        <p>Date: {DATE}</p>
+        <p>Time: {TIME}</p>
+        <p>Duration: {DURATION} minutes</p>
+        <p>Price: {PRICE}€</p>
+    </script>
 </body>
 </html>
