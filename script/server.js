@@ -63,14 +63,14 @@ app.get("/register", (req, res) => { //TODO middleware for redirect to profile i
 });
 
 app.get("/profile", isAuth, async (req, res) => {
-  let user = await UserModel.findOne({_id: req.session.userId})
+  let user = await UserModel.findOne({_id: req.session.userId});
   const costInfo = await getUserCostInfo(req.session.userId);
   res.render("profile", { username: user.username, isAuth: req.session.isAuth, totalCost: costInfo.totalCost, averageCost: costInfo.averageCost.toFixed(2), totalBookings: costInfo.totalBookings});
-})
+});
 
 app.post("/register", async (req, res) => { 
-  const { username, password } = req.body
-  let user = await UserModel.findOne({username})
+  const { username, password } = req.body;
+  let user = await UserModel.findOne({username});
 
   if(user) {
     console.log("username already exists")
@@ -82,7 +82,6 @@ app.post("/register", async (req, res) => {
   user = new UserModel({
     username: username,
     password: hashedPassword,
-    rentedCars: [],
     isAdmin: false
   });
 
@@ -107,7 +106,6 @@ app.post("/login", async (req, res) => { //TODO middleware for redirect to profi
     return res.render("login", { message: "Login failed, try again"})
   }
 
-  console.log("successful login")
   req.session.isAuth = true
   req.session.userId = user._id
   res.redirect("/")
@@ -115,11 +113,11 @@ app.post("/login", async (req, res) => { //TODO middleware for redirect to profi
 
 app.post("/logout", (req, res) => {
   req.session.destroy((err) => {
-    if(err) throw err
-    console.log("logout user")
-    res.redirect("/")
-  })
-})
+    if(err) throw err;
+    res.redirect("/");
+  });
+});
+
 
 app.post("/admin", async (req, res) => {
   const {carId, carName, fuelType, earlyTime, lateTime, maxTime, flatrate, costPerMinute } = req.body;
@@ -130,13 +128,15 @@ app.post("/admin", async (req, res) => {
 
   car = new CarModel({
     carId: carId,
-    carName: carName,
+    make: "",
+    model: "",
+    name: carName,
     fuelType: fuelType,
     earlyTime: earlyTime,
     lateTime: lateTime,
     maxTime: maxTime,
-    flatrate: flatrate,
-    costPerMinute: costPerMinute
+    price: flatrate,
+    pricePerMinute: costPerMinute
   });
 
   car.save();
@@ -144,18 +144,51 @@ app.post("/admin", async (req, res) => {
   res.render("admin", { isAuth: req.session.isAuth, message: "Successfully added car" });
 });
 
+const resultsPerSearch = 10;
 app.post("/search", async (req, res) => {
 
   const { showAll, useFilter, index } = req.body;
 
-  if (showAll) {
-    results = await CarModel.find().skip(index).limit(10);
-    return res.json({ results: results });
+  if (!useFilter) {
+    if (showAll) {
+      let results = await CarModel.find().skip(index).limit(resultsPerSearch);
+      return res.json({ results: results, index: index + resultsPerSearch });
+    } else {
+      const { searchText, fuelType } = req.body;
+      let results = await CarModel.find({name: {$regex: `.*${searchText}.*`}, fuelType: fuelType}).skip(index).limit(resultsPerSearch);    
+      return res.json({ results: results, index: index + resultsPerSearch });
+    }
   } else {
-    const { searchText, fuelType } = req.body;
-    results = await CarModel.find({carName: searchText, fuelType: fuelType}).skip(index).limit(10);    
-    res.json({ results: results });
+    const { filterDate, filterTime, filterDuration } = req.body;
+    
+    let results = [];
+    let checkedAmount = 0;
+    
+    while(results.length != resultsPerSearch) {
+      const neededResults = resultsPerSearch - results.length;
+      let cars; 
+      if (showAll) {
+        cars = await CarModel.find().skip(index + checkedAmount).limit(neededResults);
+      } else {
+        const { searchText, fuelType } = req.body;
+        cars = await CarModel.find({name: {$regex: `.*${searchText}.*`}, fuelType: fuelType}).skip(index + checkedAmount).limit(neededResults);
+      }
+     
+      if (!cars) {
+        break;
+      }
+
+      for(let i = 0; i < cars.length; i++) {
+        if (await isAvailable(cars[i].carId, filterDate, filterTime, filterDuration)) {
+          results.push(cars[i]);
+        }
+      }
+      checkedAmount += neededResults;
+    }
+
+    return res.json({results: results, index: index + checkedAmount});
   }
+
 });
 
 app.post("/checkAvailability", async (req, res) => {
@@ -163,7 +196,7 @@ app.post("/checkAvailability", async (req, res) => {
   const {carId, date, time, duration} = req.body;
   
   car = await CarModel.findOne({carId: carId}); 
-  price = car.flatrate + car.costPerMinute * duration;
+  price = await getCarPrice(carId, duration);
 
   const availableResponseMessage = `The car is available, the cost for ${duration} minutes is ${price}€`;
   const unavailableResponseMessage = `The car is not available for the specified time, the cost for ${duration} minutes would be ${price}€`;
@@ -263,7 +296,7 @@ async function getUserCostInfo(userId) {
 
 async function getCarPrice(carId, duration) {
   car = await CarModel.findOne({carId: carId});
-  return car.flatrate + car.costPerMinute * duration;
+  return car.price + car.pricePerMinute * duration;
 }
 
 app.listen(port, () => {

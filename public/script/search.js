@@ -4,6 +4,7 @@ fuelType = document.getElementById("searchFuelType");
 searchBtn = document.getElementById("searchBtn");
 searchAllBtn = document.getElementById("searchAllBtn");
 
+filterBtn = document.getElementById("filterBtn");
 filterDateInput = document.getElementById("filterDate");
 filterTimeInput = document.getElementById("filterTime");
 filterDurationInput = document.getElementById("filterDuration");
@@ -14,9 +15,11 @@ cardTemplate = document.getElementById("cardTemplate").innerHTML;
 
 searchBtn.addEventListener("click", search);
 searchAllBtn.addEventListener("click", searchAll);
+filterBtn.addEventListener("click", filterSearch);
 
 let currentSearch = {};
 let currentSearchResultAmount = 0;
+let currentSearchIndex = 0;
 
 function getFilterValues() {
   return { filterDate: filterDateInput.value, filterTime: filterTimeInput.value, filterDuration: filterDurationInput.value};
@@ -26,28 +29,28 @@ async function filterSearch() {
   const { filterDate, filterTime, filterDuration } = getFilterValues();
 
   if ( filterDate == "" || filterTime == "" || filterDuration == "") {
-    searchResponse.innerHTML = "Missing filter input";
+    showSearchResponse("Missing filter input");
+    return;
   }
 
-  let body;
-  if (currentSearch.showAll) {
-    body = { showAll: true, filterDate: filterDate, filterTime: filterTime, filterDuration: filterDuration };
-  } else {
-    if (searchBar.value == "" || fuelType.value == "") {
-      showSearchResponse("Missing filter input");
-      return;
-    }
-    body = { searchText: searchBar.value, fuelType: fuelType.value, filterDate: filterDate, filterTime: filterTime, filterDuration: filterDuration};
-  }
+  let body = currentSearch;
+  body.useFilter = true;
+  body.resultAmount = currentSearchResultAmount;
+  body.filterDate = filterDate;
+  body.filterTime = filterTime;
+  body.filterDuration = filterDuration;
 
-  // /search or /filterSearch?
-  makeRequest("/search", body);
+  clearResults();
+  const results = await getSearchResults(body);
+  console.log(results.length);
+  showResults(results);
+  showSearchResponse("Filter applied");
 }
 
 
 async function searchAll() {
   clearResults();
-  const body = { showAll: true, useFilter: false, index: currentSearchResultAmount };
+  const body = { showAll: true, useFilter: false, index: currentSearchIndex };
   const results = await getSearchResults(body);
   showResults(results); 
 }
@@ -59,7 +62,7 @@ async function search() {
   }
   
   clearResults();
-  const body = { showAll: false, useFilter: false, index: currentSearchResultAmount, searchText: searchBar.value, fuelType: fuelType.value};
+  const body = { showAll: false, useFilter: false, index: currentSearchIndex, searchText: searchBar.value, fuelType: fuelType.value};
   const results = await getSearchResults(body);
   showResults(results); 
 }
@@ -67,10 +70,10 @@ async function search() {
 async function showMore() {
   let showMoreBtn = document.getElementById("showMoreBtn");
   showMoreBtn.parentNode.removeChild(showMoreBtn);
-  console.log(currentSearchResultAmount);
+  console.log(currentSearchIndex);
 
   const body = currentSearch;
-  body.index = currentSearchResultAmount;
+  body.index = currentSearchIndex;
 
   const results = await getSearchResults(body);
   showResults(results);
@@ -79,12 +82,14 @@ async function showMore() {
 async function getSearchResults(body) {
   currentSearch = body;
   const response = await makeRequest("/search", body);
+  currentSearchIndex += response.index;
   currentSearchResultAmount += response.results.length;
   return response.results; 
 }
 
 function clearResults() {
   currentSearchResultAmount = 0;
+  currentSearchIndex = 0;
   resultsDiv.innerHTML = "";
 }
 
@@ -98,13 +103,13 @@ function showResults(results) {
     card.setAttribute("id", id);
     card.innerHTML = cardTemplate;
     card.innerHTML = card.innerHTML
-      .replace(/{NAME}/g, result.carName)
+      .replace(/{NAME}/g, result.name)
       .replace(/{ID}/g, result.carId)
       .replace(/{FUELTYPE}/g, result.fuelType)
       .replace(/{TIMEFRAME}/g, `${result.earlyTime} - ${result.lateTime}`)
       .replace(/{MAXTIME}/g, result.maxTime)
-      .replace(/{FLATRATE}/g, result.flatrate)
-      .replace(/{COSTPERMINUTE}/g, result.costPerMinute);
+      .replace(/{FLATRATE}/g, result.price)
+      .replace(/{COSTPERMINUTE}/g, result.pricePerMinute);
 
     resultsDiv.append(card);
 

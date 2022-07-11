@@ -2,7 +2,7 @@
     color: #aaa;
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 30px;
 }
 
@@ -10,7 +10,7 @@
     justify-self: center;
     align-self: center;
     padding: 20px;
-    width: 40%;
+    width: 80%;
 
     border: 1px solid #3d3d3d;
     background-color: #212121;
@@ -70,4 +70,8 @@
     color: white;
     font-weight: 500;
     margin: 10px 0;
+}
+
+#showMoreBtn {
+    grid-column: span 2;
 }
