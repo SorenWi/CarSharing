@@ -42,7 +42,6 @@ async function filterSearch() {
 
   clearResults();
   const results = await getSearchResults(body);
-  console.log(results.length);
   showResults(results);
   showSearchResponse("Filter applied");
 }
@@ -53,6 +52,7 @@ async function searchAll() {
   const body = { showAll: true, useFilter: false, index: currentSearchIndex };
   const results = await getSearchResults(body);
   showResults(results); 
+  showSearchResponse("Showing all");
 }
 
 async function search() {
@@ -65,12 +65,12 @@ async function search() {
   const body = { showAll: false, useFilter: false, index: currentSearchIndex, searchText: searchBar.value, fuelType: fuelType.value};
   const results = await getSearchResults(body);
   showResults(results); 
+  showSearchResponse("Showing results");
 }
 
 async function showMore() {
   let showMoreBtn = document.getElementById("showMoreBtn");
   showMoreBtn.parentNode.removeChild(showMoreBtn);
-  console.log(currentSearchIndex);
 
   const body = currentSearch;
   body.index = currentSearchIndex;
@@ -108,8 +108,8 @@ function showResults(results) {
       .replace(/{FUELTYPE}/g, result.fuelType)
       .replace(/{TIMEFRAME}/g, `${result.earlyTime} - ${result.lateTime}`)
       .replace(/{MAXTIME}/g, result.maxTime)
-      .replace(/{FLATRATE}/g, result.price)
-      .replace(/{COSTPERMINUTE}/g, result.pricePerMinute);
+      .replace(/{PRICE}/g, result.price)
+      .replace(/{PRICEPERMINUTE}/g, result.pricePerMinute);
 
     resultsDiv.append(card);
 

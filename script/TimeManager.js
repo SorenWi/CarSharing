@@ -2,7 +2,6 @@
 class TimeManager {
     //minutes since start of the day
     static convertToMinutes(time) {
-        console.log(time);
         const timeSplit = time.split(":");
         const minutes = parseInt(timeSplit[0]) * 60 + parseInt(timeSplit[1]);
         return minutes;
@@ -32,15 +31,24 @@ class TimeManager {
         const start1 = this.convertToMinutes(startTime1);
         const start2 = this.convertToMinutes(startTime2);
         const end1 = this.convertToMinutes(endTime1);
-        const end2 = start2 + duration2;
+        const end2 = start2 + parseInt(duration2);
 
         return this.timePointWithinFrame(start1, end1, start2) && this.timePointWithinFrame(start1, end1, end2);
     }
 
-    //all parameters have to be in a number format
+    //all parameters have to be in a number format and same time scale (minutes, seconds)
     //returns wether a point in time lies within a time frame
     static timePointWithinFrame(frameStart, frameEnd, timePoint) {
         return timePoint >= frameStart && timePoint <= frameEnd;
+    }
+
+    //Checks if time1 is before time2
+    static timeBeforeTime(time1, time2) {
+        return this.convertToMinutes(time1) < this.convertToMinutes(time2);
+    }
+
+    static durationFitTimeFrame(time1, time2, duration) {
+        return this.convertToMinutes(time2) - this.convertToMinutes(time1) >= duration;
     }
 
     static isPast(date, time) {

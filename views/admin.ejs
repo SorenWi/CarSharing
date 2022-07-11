@@ -40,11 +40,11 @@
             <label for="lateTime">Latest Time</label>
             <input type="time" name="lateTime" required>
             <label for="maxTime">Max Time</label>
-            <input type="number" name="maxTime" required>
+            <input type="number" name="maxTime" min="0" required>
             <label for="flatrate">Flatrate</label>
-            <input type="number" step="any" name="flatrate" required>
+            <input type="number" step="any" name="flatrate" min="0" required>
             <label for="costPerMinute">Cost per minute</label>
-            <input type="number" step="any" name="costPerMinute" required>
+            <input type="number" step="any" name="costPerMinute" min="0" required>
             <% if (locals.message) { %>
                 <p> <%= message %> </p>
             <% } %> 

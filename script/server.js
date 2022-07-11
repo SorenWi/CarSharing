@@ -73,7 +73,6 @@ app.post("/register", async (req, res) => {
   let user = await UserModel.findOne({username});
 
   if(user) {
-    console.log("username already exists")
     return res.render("register", { message: "Username already exists, try a different one"})
   }
 
@@ -121,9 +120,17 @@ app.post("/logout", (req, res) => {
 
 app.post("/admin", async (req, res) => {
   const {carId, carName, fuelType, earlyTime, lateTime, maxTime, flatrate, costPerMinute } = req.body;
-  
+
+  if (!TimeManager.timeBeforeTime(earlyTime, lateTime)) {
+    return res.render("admin", {isAuth: req.session.isAuth, message: "Failed: earlyTime has to be before lateTime"});
+  }
+
+  if (!TimeManager.durationFitTimeFrame(earlyTime, lateTime, maxTime)) {
+    return res.render("admin", {isAuth: req.session.isAuth, message: "Failed: maxTime has to fit within early and late time"});
+  }
+
   if(await CarModel.findOne({carId})) {
-    return res.render("admin", { isAuth: req.session.isAuth, message: "ERROR: Car ID already exists" });
+    return res.render("admin", { isAuth: req.session.isAuth, message: "Failed: Car ID already exists" });
   }
 
   car = new CarModel({
@@ -192,7 +199,6 @@ app.post("/search", async (req, res) => {
 });
 
 app.post("/checkAvailability", async (req, res) => {
-  console.log("availability request");
   const {carId, date, time, duration} = req.body;
   
   car = await CarModel.findOne({carId: carId}); 
@@ -257,10 +263,13 @@ async function isAvailable(carId, date, rentTime, rentDuration) {
 
   //Check if duration is legit
   if(rentDuration > car.maxTime) {
-    return res.json({ message: "Duration is higher than the maximum time limit"});
+    return false;
   }
 
-  //TODO Check if time frame is legit for that car
+  //Check if time frame is legit for that car
+  if (!TimeManager.timeFrameWithinTimeFrame(car.earlyTime, car.lateTime, rentTime, rentDuration)) {
+    return false;
+  }
 
   //If there is no other booking that day (and didnt already fail previous checks), has to be available
   if (!alreadyExisting) {
