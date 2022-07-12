@@ -1,0 +1,13 @@
+body {
+    display: grid;
+    grid-template-rows: 100vh;
+}
+
+button {
+    grid-column: span 2;
+}
+
+.card {
+    width: 25%;
+}
+
