@@ -121,16 +121,31 @@ app.post("/logout", (req, res) => {
 app.post("/admin", async (req, res) => {
   const {carId, carName, fuelType, earlyTime, lateTime, maxTime, flatrate, costPerMinute } = req.body;
 
+  let response = { isAuth: req.session.isAuth }
+
+  if(await CarModel.findOne({carId})) {
+    response.message = "Failed: Car ID already exists";
+    return res.render("admin", response);
+  }
+
+  if (!(/^\w+$/gm.test(carName))) {
+    response.message = "Failed: Car name has to be alphanumerical, no special characters and/or spaces (except _)";
+    return res.render("admin", response);
+  }
+
+  if (!(/^[\w\-]+$/gm.test(carId))) {
+    response.message = "Failed: Car id has to be alphanumerical, no special characters and/or spaces (except _ and -)";
+    return res.render("admin", response);
+  }
+
   if (!TimeManager.timeBeforeTime(earlyTime, lateTime)) {
-    return res.render("admin", {isAuth: req.session.isAuth, message: "Failed: earlyTime has to be before lateTime"});
+    response.message = "Failed: earlyTime has to be before lateTime";
+    return res.render("admin", response);
   }
 
   if (!TimeManager.durationFitTimeFrame(earlyTime, lateTime, maxTime)) {
-    return res.render("admin", {isAuth: req.session.isAuth, message: "Failed: maxTime has to fit within early and late time"});
-  }
-
-  if(await CarModel.findOne({carId})) {
-    return res.render("admin", { isAuth: req.session.isAuth, message: "Failed: Car ID already exists" });
+    response.message = "Failed: maxTime has to fit within early and late time";
+    return res.render("admin", response);
   }
 
   car = new CarModel({
@@ -148,7 +163,8 @@ app.post("/admin", async (req, res) => {
 
   car.save();
 
-  res.render("admin", { isAuth: req.session.isAuth, message: "Successfully added car" });
+  response.message = "Successfully added car"
+  res.render("admin", response);
 });
 
 const resultsPerSearch = 10;
