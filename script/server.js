@@ -47,7 +47,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: true, credentials: true }));
 
 app.get("/", async (req, res) => {
-  res.render("carSearch", {isAuth: req.session.isAuth});
+  res.render("search", {isAuth: req.session.isAuth});
 });
 
 app.get("/admin", (req, res) => { //TODO add middleware to check if user is admin  
