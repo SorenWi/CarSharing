@@ -1,3 +1,9 @@
+//const { ServerCommunication } = require("./ServerCommunication.js");
+//import { ServerCommunication } from "./ServerCommunication.js";
+
+let server;
+getServer();
+
 resultsDiv = document.getElementById("searchResults");
 searchBar = document.getElementById("searchBar");
 fuelType = document.getElementById("searchFuelType");
@@ -20,6 +26,12 @@ filterBtn.addEventListener("click", filterSearch);
 let currentSearch = {};
 let currentSearchResultAmount = 0;
 let currentSearchIndex = 0;
+
+
+async function getServer() {
+  const { ServerCommunication } = await import("./ServerCommunication.js");
+  server = new ServerCommunication();
+}
 
 function getFilterValues() {
   return { filterDate: filterDateInput.value, filterTime: filterTimeInput.value, filterDuration: filterDurationInput.value};
@@ -139,7 +151,8 @@ async function checkAvailability(id) {
   }
 
   const body = { carId: id, date: date, time: time, duration: duration };
-  const response = await makeRequest("/checkAvailability", body); 
+  //const response = await makeRequest("/checkAvailability", body); 
+  const response = await server.makePostRequest("/checkAvailability", body);
   showCardResponse(id, response.message);
 }
 
