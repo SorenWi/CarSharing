@@ -2,7 +2,7 @@
 class TimeManager {
 
     //takes time as a string in the format of "hh:mm" (minutes since start of the day)
-    static #convertToMinutes(time) {
+    static convertToMinutes(time) {
         const timeSplit = time.split(":");
         const minutes = parseInt(timeSplit[0]) * 60 + parseInt(timeSplit[1]);
         return minutes;
@@ -39,7 +39,7 @@ class TimeManager {
 
     //all parameters have to be in a number format and same time scale (minutes, seconds)
     //returns wether a point in time lies within a time frame
-    static #timePointWithinFrame(frameStart, frameEnd, timePoint) {
+    static timePointWithinFrame(frameStart, frameEnd, timePoint) {
         return timePoint >= frameStart && timePoint <= frameEnd;
     }
 
