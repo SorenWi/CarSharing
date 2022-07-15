@@ -13,7 +13,7 @@ nav {
     top: 0;
     right: 0;
     background-color: transparent;
-    padding: 10px 0px;
+    padding: 20px 0px;
     font-size: 15px;
 }
 
@@ -79,7 +79,7 @@ select {
     border-radius: 5px;
     color: #3ea6ff;
     border: 1px solid #3ea6ff;
-
+    background-color: #212121;
     padding: 10px 15px;
 
     text-decoration: none;
