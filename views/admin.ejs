@@ -6,29 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="public/css/style.css" type="text/css">
     <link rel="stylesheet" href="public/css/card.css" type="text/css">
-    <link rel="stylesheet" href="public/css/admin.css" type="text/css">
+    <link rel="stylesheet" href="public/css/panel.css" type="text/css">
     <title>Admin</title>
 </head>
-<body>
+<body class="panelBody">
     <nav>
         <div id="navUser">
-            <a class="userBtn" href="/">Search</a>
-            <% if(isAuth) { %>
-                <a href="/admin" class="userBtn">Admin</a>
-                <a href="/profile" class="userBtn">Profile</a>
-            <% } else { %>
-                <a href="/login" class="authBtn">Login</a>
-                <a href="/register" class="authBtn">Register</a>
-            <% } %>  
+            <a class="userBtn" href="/">Search</a>    
+            <a href="/admin" class="userBtn">Admin</a>
+            <a href="/profile" class="userBtn">Profile</a>
         </div>   
     </nav>
 
     
-    <div class="card">
+    <div class="card panel">
         <div class="cardHeader">
-            <h1 class="cardHeading">Admin</h1>
+            <h1 class="cardHeading">Add Car</h1>
         </div>
-        <h3 class="cardInfoHeading">Add Car</h3>
+        
         <form class="cardSectionGrid2" action="/admin" method="POST">
             <label for="carId">ID</label>
             <input type="text" name="carId" required>

@@ -1,13 +1,12 @@
-body {
+.panelBody {
     display: grid;
     grid-template-rows: 100vh;
 }
 
-button {
+.panel button {
     grid-column: span 2;
 }
 
-.card {
+.panel {
     width: 25%;
 }
-

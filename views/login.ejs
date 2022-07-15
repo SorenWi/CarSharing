@@ -5,22 +5,26 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="public/css/style.css" type="text/css">
+    <link rel="stylesheet" href="public/css/card.css" type="text/css">
     <link rel="stylesheet" href="public/css/panel.css" type="text/css">
-    <title>Document</title>
+    <title>Login</title>
 </head>
-<body>
+<body class="panelBody">
     <nav>
         <a class="userBtn" href="/">Search</a>
     </nav>
-    <div class="panel">
-        <h1>Login</h1>
-        <form action="/login" method="POST">
+    <div class="card panel">
+        <div class="cardHeader">
+            <h1 class="cardHeading">Login</h1>
+        </div>
+        
+        <form action="/login" method="POST" class="cardSectionGrid2">
             <label for="username">Username</label>
             <input type="text" name="username" required>
             <label for="password">Password</label>
             <input type="password" name="password" required>
             <% if (locals.message) { %>
-                <p> <%= message %> </p>
+                <p class="response"> <%= message %> </p>
             <% } %> 
             <button>Login</button>
         </form>

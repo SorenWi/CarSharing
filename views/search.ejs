@@ -6,16 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="public/css/style.css" type="text/css">
     <link rel="stylesheet" href="public/css/card.css" type="text/css">
-    <script type="module" src="../public/script/ServerCommunication.js" async></script>
-   <!--<script type="text/javascript" src="../public/script/search.js" async></script> -->
+    <!--<script type="module" src="../public/script/ServerCommunication.js" async></script>-->
+   <script type="text/javascript" src="../public/script/search.js" async></script> 
     <script type="text/javascript" src="../public/script/SearchManager.js" async></script>
     <title>Car Search</title>
 </head>
 <body>
     <nav>
         <div id="navUser">
-            <% if(isAuth) { %>
+            <% if(locals.isAuth) { %>
+              <% if(locals.isAdmin) { %>
                 <a href="/admin" class="userBtn">Admin</a>
+              <% } %>
                 <a href="/profile" class="userBtn">Profile</a>
             <% } else { %>
                 <a href="/login" class="authBtn">Login</a>
@@ -25,23 +27,29 @@
     </nav>
 
     <div id="search">
-      <div>
-        <input type="text" name="name" id="searchBar" required placeholder="Search"><select name="fuelType" id="searchFuelType">
+      <div id="searchOptions">
+        <h2 class="cardHeading">Search</h2>
+        <input type="text" name="name" id="searchBar" required placeholder="Search">
+        <select name="fuelType" id="searchFuelType">
             <option value="Electric">Electric</option>
             <option value="Petrol">Petrol</option>
             <option value="Diesel">Diesel</option>
-        </select><button id="searchBtn">Search</button>
+        </select>
+        <button id="searchBtn">Search</button>
+        <span> OR </span>
+        <button id="searchAllBtn">Show all</button>
       </div>
       <div id="filterOptions">
+        <h2 class="cardHeading">Filter</h2>
         <label for="date">Date</label>
         <input type="date" name="date" id="filterDate">
         <label for="time">Time</label>
         <input type="time" name="time" id="filterTime">
         <label for="duration">Duration</label>
         <input type="number" name="duration" id="filterDuration">
-        <button id="filterBtn">Apply filter to Search</button>
+        <button id="filterBtn">Apply filter</button>
       </div>
-      <button id="searchAllBtn">Show all</button>
+      
       <div class="response" id="searchResponse"></div> 
     </div>
 
