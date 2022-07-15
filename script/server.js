@@ -13,6 +13,12 @@ const BookingModel = require("../models/Booking.js");
 const port = 3000;
 const mongoURI = "mongodb://localhost:27017/CarSharing";
 
+app.use("/public", express.static("public"));
+app.set("view engine", "ejs");
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors({ origin: true, credentials: true }));
+
 //Connect to MongoDB database
 mongoose.connect(mongoURI).then((res) => {
   console.log("MongoDB connected");
@@ -53,12 +59,6 @@ const ifAuthRedirectToProfile = (req, res, next) => {
     next();
   }
 }
-
-app.use("/public", express.static("public"));
-app.set("view engine", "ejs");
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: true, credentials: true }));
 
 app.get("/", async (req, res) => {
   res.render("search", {isAuth: req.session.isAuth, isAdmin: req.session.isAdmin});
@@ -113,14 +113,12 @@ app.post("/login", async (req, res) => {
   const { username, password } = req.body
 
   const user = await UserModel.findOne({username})
-  if(!user){
-    console.log("user doesnt exist ")    
+  if(!user){    
     return res.render("login", { message: "Login failed, try again"})
   }
 
   const isMatch = await bcrypt.compare(password, user.password)
   if (!isMatch) {
-    console.log("wrong password for login")
     return res.render("login", { message: "Login failed, try again"})
   }
 
@@ -196,12 +194,11 @@ app.post("/search", async (req, res) => {
   if (!useFilter) {
     if (showAll) {
       let results = await CarModel.find().skip(index).limit(resultsPerSearch);
-      return res.json({ results: results, index: index + resultsPerSearch });
+      res.json({ results: results, index: index + resultsPerSearch });
     } else {
       const { searchText, fuelType } = req.body;
-      //let results = await CarModel.find({name: {$regex: `.*${searchText}.*`}, fuelType: fuelType}).skip(index).limit(resultsPerSearch);
       let results = await CarModel.find({name: {$regex: `.*${searchText}.*`, $options: 'i'}, fuelType: fuelType}).skip(index).limit(resultsPerSearch);
-      return res.json({ results: results, index: index + resultsPerSearch });
+      res.json({ results: results, index: index + resultsPerSearch });
     }
   } else {
     const { filterDate, filterTime, filterDuration } = req.body;
@@ -216,11 +213,10 @@ app.post("/search", async (req, res) => {
         cars = await CarModel.find().skip(index + checkedAmount).limit(neededResults);
       } else {
         const { searchText, fuelType } = req.body;
-        console.log(index, neededResults);
-        cars = await CarModel.find({name: {$regex: `.*${searchText}.*`}, fuelType: fuelType}).skip(index + checkedAmount).limit(neededResults);
+        cars = await CarModel.find({name: {$regex: `.*${searchText}.*`, $options: 'i'}, fuelType: fuelType}).skip(index + checkedAmount).limit(neededResults);
       }
      
-      if (!cars) {
+      if (cars.length == 0) {
         break;
       }
 
@@ -232,7 +228,7 @@ app.post("/search", async (req, res) => {
       checkedAmount += neededResults;
     }
 
-    return res.json({results: results, index: index + checkedAmount});
+    res.json({results: results, index: index + checkedAmount});
   }
 
 });
