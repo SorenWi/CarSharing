@@ -5,15 +5,13 @@ const MongoDBSession = require("connect-mongodb-session")(session)
 const mongoose = require("mongoose")
 const bcrypt = require('bcrypt')
 const cors = require("cors")
-
 const TimeManager = require("./TimeManager.js");
-
-const port = 3000;
-const mongoURI = "mongodb://localhost:27017/CarSharing";
-
 const UserModel = require("../models/User.js");
 const CarModel = require("../models/Car.js");
 const BookingModel = require("../models/Booking.js");
+
+const port = 3000;
+const mongoURI = "mongodb://localhost:27017/CarSharing";
 
 //Connect to MongoDB database
 mongoose.connect(mongoURI).then((res) => {
@@ -40,6 +38,22 @@ const isAuth = (req, res, next) => {
   }
 }
 
+const isAdmin = (req, res, next) => {
+  if (req.session.isAdmin) {
+    next()
+  } else {
+    res.redirect("/");
+  }
+}
+
+const ifAuthRedirectToProfile = (req, res, next) => {
+  if(req.session.isAuth) {
+    res.redirect("/profile");
+  } else {
+    next();
+  }
+}
+
 app.use("/public", express.static("public"));
 app.set("view engine", "ejs");
 app.use(express.json());
@@ -47,29 +61,34 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: true, credentials: true }));
 
 app.get("/", async (req, res) => {
-  res.render("search", {isAuth: req.session.isAuth});
+  res.render("search", {isAuth: req.session.isAuth, isAdmin: req.session.isAdmin});
 });
 
-app.get("/admin", (req, res) => { //TODO add middleware to check if user is admin  
+app.get("/admin", isAdmin, (req, res) => {
   res.render("admin", {isAuth: req.session.isAuth});
 });
 
-app.get("/login", (req, res) => { //TODO middleware for redirect to profile if already logged in
+app.get("/login", ifAuthRedirectToProfile, (req, res) => {
   res.render("login");
 });
 
-app.get("/register", (req, res) => { //TODO middleware for redirect to profile if already logged in
+app.get("/register", ifAuthRedirectToProfile, (req, res) => {
   res.render("register");
 });
 
 app.get("/profile", isAuth, async (req, res) => {
   let user = await UserModel.findOne({_id: req.session.userId});
   const costInfo = await getUserCostInfo(req.session.userId);
-  res.render("profile", { username: user.username, isAuth: req.session.isAuth, totalCost: costInfo.totalCost, averageCost: costInfo.averageCost.toFixed(2), totalBookings: costInfo.totalBookings});
+  res.render("profile", { username: user.username, isAuth: req.session.isAuth, totalCost: costInfo.totalCost, averageCost: costInfo.averageCost.toFixed(2), totalBookings: costInfo.totalBookings, isAdmin: req.session.isAdmin});
 });
 
 app.post("/register", async (req, res) => { 
   const { username, password } = req.body;
+
+  if (!(/^\w+$/gm.test(username))) {
+    return res.render("register", { message: "Only letters and underscores are allowed for username" });
+  }
+
   let user = await UserModel.findOne({username});
 
   if(user) {
@@ -90,7 +109,7 @@ app.post("/register", async (req, res) => {
 })
 
 
-app.post("/login", async (req, res) => { //TODO middleware for redirect to profile if already logged in
+app.post("/login", async (req, res) => {
   const { username, password } = req.body
 
   const user = await UserModel.findOne({username})
@@ -107,6 +126,8 @@ app.post("/login", async (req, res) => { //TODO middleware for redirect to profi
 
   req.session.isAuth = true
   req.session.userId = user._id
+  req.session.isAdmin = user.isAdmin;
+
   res.redirect("/")
 })
 
@@ -178,7 +199,8 @@ app.post("/search", async (req, res) => {
       return res.json({ results: results, index: index + resultsPerSearch });
     } else {
       const { searchText, fuelType } = req.body;
-      let results = await CarModel.find({name: {$regex: `.*${searchText}.*`}, fuelType: fuelType}).skip(index).limit(resultsPerSearch);    
+      //let results = await CarModel.find({name: {$regex: `.*${searchText}.*`}, fuelType: fuelType}).skip(index).limit(resultsPerSearch);
+      let results = await CarModel.find({name: {$regex: `.*${searchText}.*`, $options: 'i'}, fuelType: fuelType}).skip(index).limit(resultsPerSearch);
       return res.json({ results: results, index: index + resultsPerSearch });
     }
   } else {
@@ -194,6 +216,7 @@ app.post("/search", async (req, res) => {
         cars = await CarModel.find().skip(index + checkedAmount).limit(neededResults);
       } else {
         const { searchText, fuelType } = req.body;
+        console.log(index, neededResults);
         cars = await CarModel.find({name: {$regex: `.*${searchText}.*`}, fuelType: fuelType}).skip(index + checkedAmount).limit(neededResults);
       }
      
