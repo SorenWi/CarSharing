@@ -1,6 +1,6 @@
 # Car Sharing - Softwaredesign
 
-## How to run
+## How to run (first time)
 * Clone repository
 * Install Node.js if not already installed https://nodejs.org/en/
 * Get node modules by using `npm install` in root folder
@@ -12,11 +12,15 @@
     * The console should now display `Server running on http://localhost:3000` and `MongoDB connected`
 * Go to `http://localhost:3000/` in any browser (Firefox was used for testing and development)
 
-For running the application again only the previous two steps are required
-
 Hardcoded admin account:
 Username: admin
 Password: admin
+
+## How to run (second+ time)
+* Run MongoDB on locally on port 27017 / (URI `mongodb://localhost:27017`)
+* Run `npm run server` or `node script/server.js` in root folder
+    * The console should now display `Server running on http://localhost:3000` and `MongoDB connected`
+* Go to `http://localhost:3000/` in any browser (Firefox was used for testing and development)
 
 ## Unit tests
 * To run unit tests use `npm run test` in root folder
