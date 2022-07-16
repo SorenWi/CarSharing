@@ -11,7 +11,11 @@
     * The console should now display `Server running on http://localhost:3000` and `MongoDB connected`
 * Go to `http://localhost:3000/` in any browser (Firefox was used for testing and development)
 
-For running the application again only the last two steps are required
+For running the application again only the previous two steps are required
+
+Hardcoded admin account:
+Username: admin
+Password: admin
 
 ## Unit tests
 * To run unit tests use `npm run test` in root folder
