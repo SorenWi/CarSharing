@@ -28,12 +28,14 @@ async function search() {
     showSearchResponse("Missing search input");
     return;
   }
-  
+
+  clearResults();
   const body = { showAll: false, useFilter: false, index: currentSearchIndex, searchText: searchBar.value, fuelType: fuelType.value};
   await getAndDisplaySearchResults(body, "Showing results");
 }
 
 async function searchAll() {
+  clearResults();
   const body = { showAll: true, useFilter: false, index: currentSearchIndex };
   await getAndDisplaySearchResults(body, "Showing all");
 }
@@ -46,13 +48,15 @@ async function filterSearch() {
     return;
   }
 
+  clearResults();
+
   const body = currentSearch;
   body.useFilter = true;
   body.resultAmount = currentSearchResultAmount;
   body.filterDate = filterDate;
   body.filterTime = filterTime;
   body.filterDuration = filterDuration;
-
+  
   await getAndDisplaySearchResults(body, "Filter applied");
 }
 
@@ -76,7 +80,6 @@ async function getSearchResults(body) {
 }
 
 async function getAndDisplaySearchResults(body, message) {
-  clearResults();
   const results = await getSearchResults(body);
   showResults(results); 
   showSearchResponse(message);
