@@ -37,4 +37,9 @@ p {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: repeat(auto-fill, 250px);
+    gap: 5px;
+}
+
+#bookingsContainer .cardHeading {
+    font-size: 20px;
 }

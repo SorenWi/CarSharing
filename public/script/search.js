@@ -1,23 +1,17 @@
-//const { ServerCommunication } = require("./ServerCommunication.js");
-//import { ServerCommunication } from "./ServerCommunication.js";
+const resultsDiv = document.getElementById("searchResults");
+const searchBar = document.getElementById("searchBar");
+const fuelType = document.getElementById("searchFuelType");
+const searchBtn = document.getElementById("searchBtn");
+const searchAllBtn = document.getElementById("searchAllBtn");
 
-let server;
-getServer();
+const filterBtn = document.getElementById("filterBtn");
+const filterDateInput = document.getElementById("filterDate");
+const filterTimeInput = document.getElementById("filterTime");
+const filterDurationInput = document.getElementById("filterDuration");
 
-resultsDiv = document.getElementById("searchResults");
-searchBar = document.getElementById("searchBar");
-fuelType = document.getElementById("searchFuelType");
-searchBtn = document.getElementById("searchBtn");
-searchAllBtn = document.getElementById("searchAllBtn");
+const searchResponseDiv = document.getElementById("searchResponse");
 
-filterBtn = document.getElementById("filterBtn");
-filterDateInput = document.getElementById("filterDate");
-filterTimeInput = document.getElementById("filterTime");
-filterDurationInput = document.getElementById("filterDuration");
-
-searchResponseDiv = document.getElementById("searchResponse");
-
-cardTemplate = document.getElementById("cardTemplate").innerHTML;
+const cardTemplate = document.getElementById("cardTemplate").innerHTML;
 
 searchBtn.addEventListener("click", search);
 searchAllBtn.addEventListener("click", searchAll);
@@ -27,14 +21,21 @@ let currentSearch = {};
 let currentSearchResultAmount = 0;
 let currentSearchIndex = 0;
 
+// -- Searches
 
-async function getServer() {
-  const { ServerCommunication } = await import("./ServerCommunication.js");
-  server = new ServerCommunication();
+async function search() {
+  if (searchBar.value == "" || fuelType.value == "") {
+    showSearchResponse("Missing search input");
+    return;
+  }
+  
+  const body = { showAll: false, useFilter: false, index: currentSearchIndex, searchText: searchBar.value, fuelType: fuelType.value};
+  await getAndDisplaySearchResults(body, "Showing results");
 }
 
-function getFilterValues() {
-  return { filterDate: filterDateInput.value, filterTime: filterTimeInput.value, filterDuration: filterDurationInput.value};
+async function searchAll() {
+  const body = { showAll: true, useFilter: false, index: currentSearchIndex };
+  await getAndDisplaySearchResults(body, "Showing all");
 }
 
 async function filterSearch() {
@@ -45,43 +46,18 @@ async function filterSearch() {
     return;
   }
 
-  let body = currentSearch;
+  const body = currentSearch;
   body.useFilter = true;
   body.resultAmount = currentSearchResultAmount;
   body.filterDate = filterDate;
   body.filterTime = filterTime;
   body.filterDuration = filterDuration;
 
-  clearResults();
-  const results = await getSearchResults(body);
-  showResults(results);
-  showSearchResponse("Filter applied");
-}
-
-
-async function searchAll() {
-  clearResults();
-  const body = { showAll: true, useFilter: false, index: currentSearchIndex };
-  const results = await getSearchResults(body);
-  showResults(results); 
-  showSearchResponse("Showing all");
-}
-
-async function search() {
-  if (searchBar.value == "" || fuelType.value == "") {
-    showSearchResponse("Missing search input");
-    return;
-  }
-  
-  clearResults();
-  const body = { showAll: false, useFilter: false, index: currentSearchIndex, searchText: searchBar.value, fuelType: fuelType.value};
-  const results = await getSearchResults(body);
-  showResults(results); 
-  showSearchResponse("Showing results");
+  await getAndDisplaySearchResults(body, "Filter applied");
 }
 
 async function showMore() {
-  let showMoreBtn = document.getElementById("showMoreBtn");
+  const showMoreBtn = document.getElementById("showMoreBtn");
   showMoreBtn.parentNode.removeChild(showMoreBtn);
 
   const body = currentSearch;
@@ -99,6 +75,15 @@ async function getSearchResults(body) {
   return response.results; 
 }
 
+async function getAndDisplaySearchResults(body, message) {
+  clearResults();
+  const results = await getSearchResults(body);
+  showResults(results); 
+  showSearchResponse(message);
+}
+
+// -- Managing Search Results
+
 function clearResults() {
   currentSearchResultAmount = 0;
   currentSearchIndex = 0;
@@ -106,12 +91,10 @@ function clearResults() {
 }
 
 function showResults(results) {
-  //https://stackoverflow.com/questions/16270761/how-to-insert-a-large-block-of-html-in-javascript
-  
   results.forEach(function(result) {
-    card = document.createElement("div");
+    const card = document.createElement("div");
     card.classList.add("card");
-    let id = result.carId;
+    const id = result.carId;
     card.setAttribute("id", id);
     card.innerHTML = cardTemplate;
     card.innerHTML = card.innerHTML
@@ -125,15 +108,15 @@ function showResults(results) {
 
     resultsDiv.append(card);
 
-    checkButton = document.querySelector(`#${id} #checkButton`);
+    const checkButton = document.querySelector(`#${id} #checkButton`);
     checkButton.addEventListener("click", () => { checkAvailability(id)})
 
-    bookButton = document.querySelector(`#${id} #bookButton`);
+    const bookButton = document.querySelector(`#${id} #bookButton`);
     bookButton.addEventListener("click", () => { tryBooking(id) });
   });
 
   if (results.length != 0) {
-    showMoreButton = document.createElement("button");
+    const showMoreButton = document.createElement("button");
     showMoreButton.setAttribute("id", "showMoreBtn");
     showMoreButton.append(document.createTextNode("Show more"));
   
@@ -143,6 +126,8 @@ function showResults(results) {
   }
 }
 
+// -- Interaction with search results
+
 async function checkAvailability(id) {
   const { date, time, duration } = getInputsOfCard(id);
   if ( date == "" || time == "" || duration == "") {
@@ -151,8 +136,7 @@ async function checkAvailability(id) {
   }
 
   const body = { carId: id, date: date, time: time, duration: duration };
-  //const response = await makeRequest("/checkAvailability", body); 
-  const response = await server.makePostRequest("/checkAvailability", body);
+  const response = await makeRequest("/checkAvailability", body);
   showCardResponse(id, response.message);
 }
 
@@ -164,13 +148,15 @@ async function tryBooking(id) {
   }
 
   const body = { carId: id, date: date, time: time, duration: duration };
+  //const response = await makeRequest("/bookCar", body);
   const response = await makeRequest("/bookCar", body);
   showCardResponse(id, response.message);
 }
 
-//shows a message for the card with id
+// -- Show feedback to user
+
 function showCardResponse(id, message) {
-  responseDiv = document.querySelector(`#${id} .response`);
+  const responseDiv = document.querySelector(`#${id} .response`);
   responseDiv.innerHTML = "";
   responseDiv.append(document.createTextNode(message));
 }
@@ -180,10 +166,16 @@ function showSearchResponse(message) {
   searchResponseDiv.append(document.createTextNode(message));
 }
 
+// -- Helper functions
+
+function getFilterValues() {
+  return { filterDate: filterDateInput.value, filterTime: filterTimeInput.value, filterDuration: filterDurationInput.value};
+}
+
 function getInputsOfCard(id) {
-  dateInput = document.querySelector(`#${id} input[name="date"]`).value;
-  timeInput = document.querySelector(`#${id} input[name="time"]`).value;
-  durationInput = document.querySelector(`#${id} input[name="duration"]`).value;
+  const dateInput = document.querySelector(`#${id} input[name="date"]`).value;
+  const timeInput = document.querySelector(`#${id} input[name="time"]`).value;
+  const durationInput = document.querySelector(`#${id} input[name="duration"]`).value;
 
   return inputs = { date: dateInput, time: timeInput, duration: durationInput };
 }

@@ -126,6 +126,7 @@ app.post("/login", async (req, res) => {
   req.session.userId = user._id
   req.session.isAdmin = user.isAdmin;
 
+  console.log("logged in user: " + username);
   res.redirect("/")
 })
 
@@ -134,6 +135,7 @@ app.post("/logout", (req, res) => {
     if(err) throw err;
     res.redirect("/");
   });
+  console.log("logged out user");
 });
 
 
@@ -183,6 +185,7 @@ app.post("/admin", async (req, res) => {
   car.save();
 
   response.message = "Successfully added car"
+  console.log("added new car to database");
   res.render("admin", response);
 });
 
@@ -230,7 +233,6 @@ app.post("/search", async (req, res) => {
 
     res.json({results: results, index: index + checkedAmount});
   }
-
 });
 
 app.post("/checkAvailability", async (req, res) => {

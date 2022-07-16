@@ -1,11 +1,10 @@
-upcomingBookingsBtn = document.getElementById("upcomingBookingsBtn");
-pastBookingsBtn = document.getElementById("pastBookingsBtn");
-bookingsContainer = document.getElementById("bookingsContainer");
-bookingTemplate = document.getElementById("bookingTemplate").innerHTML;
+const upcomingBookingsBtn = document.getElementById("upcomingBookingsBtn");
+const pastBookingsBtn = document.getElementById("pastBookingsBtn");
+const bookingsContainer = document.getElementById("bookingsContainer");
+const bookingTemplate = document.getElementById("bookingTemplate").innerHTML;
 
 upcomingBookingsBtn.addEventListener("click", showUpcomingBookings);
 pastBookingsBtn.addEventListener("click", showPastBookings);
-
 
 async function showUpcomingBookings() {
     const response = await makeRequest("/getBookings");
@@ -21,7 +20,7 @@ function showBookings(bookings) {
     bookingsContainer.innerHTML = "";
 
     bookings.forEach((booking) => {
-        card = document.createElement("div");
+        const card = document.createElement("div");
         card.classList.add("card");
         card.innerHTML = bookingTemplate;
         card.innerHTML = card.innerHTML
