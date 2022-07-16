@@ -2,6 +2,7 @@
 
 ## How to run
 * Clone repository
+* Install Node.js if not already installed https://nodejs.org/en/
 * Get node modules by using `npm install` in root folder
 * Install MongoDB Version 5.0.9 from https://www.mongodb.com/try/download/community
 * Create a database called `CarSharing`
